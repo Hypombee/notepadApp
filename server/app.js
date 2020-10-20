@@ -8,6 +8,18 @@ const express = require('express');
 const bodyparser = require ('body-parser');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+
+/*
+        SSL cert
+        Give node access to folder
+*/
+const certPath = '/etc/nodejs/certs.d/hypombee.com/';
+const caBundle = fs.readFileSync(certPath + 'bundle.crt');
+const privateKey = fs.readFileSync(certPath + 'private.key');
+const credentials = {key: privateKey, cert: caBundle};
 
 /*
 	Create server and database objects
@@ -16,12 +28,12 @@ const path = require('path');
 const app = express();
 const mongoose = require('./database/mongoose');
 const port = 9092;
+var httpsServer = https.createServer(credentials, app);
 
 /*
 	Import mongodb models
 */
 const User = require('./database/models/user');
-//const List = require('./database/models/user');
 const Note = require('./database/models/note');
 
 /*
@@ -56,11 +68,24 @@ app.use(express.json());
 /*
 	User API
 */
+/*      Get a User by username  */
+app.get('/users', (req, res) => {
+        User.find({})
+                .then(user => res.send(user))
+                .catch(error => console.log(error));
+});
+/* 	Get a User by username	*/
+app.get('/user', (req, res) => {
+        User.find({'username': req.body.username})
+                .then(user => res.send(user))
+                .catch(error => console.log(error));
+});
 /*     Get a User by Id        */
-app.get('/:userId', (req, res) => {
+app.get('/user/:userId', (req, res) => {
         User.find({_id: req.params.userId })
                 .then(user => res.send(user))
                 .catch(error => console.log(error));
+                console.log("here");
 });
 /*      Create a User     */
 app.post('/newuser', (req, res) => {
@@ -71,38 +96,47 @@ app.post('/newuser', (req, res) => {
 });
 /*      Update a User   */
 app.patch('/:userId', (req, res) => {
-        User.findByIdAndUpdate({'_id':req.params.userId}, {$set: req.body})
+        User.findByIdAndUpdate({ '_id':req.params.userId}, {$set: req.body})
                 .then(user => res.send(user))
                 .catch(error => console.log(error));
 });
 /*      Delete a User   */
 app.delete('/:userId', (req, res) => {
-        User.findByIdAndDelete(req.params.userId)
-                .then(user => res.send(user))
+	var deleteNotes = (userId) => {
+		Note.deleteMany({'_userId': userId})
+			.catch((error) => console.log(error));
+	};
+        User.findByIdAndDelete({ '_id': req.params.userId })
+                .then(() => deleteNotes(req.params.userId))
                 .catch(error => console.log(error));
-	/*
-		Need Delete all user notes
-	*/
+	res.send();
 });
 
 /*
 	NOTES API
 
+*/
+/*      Get All Notes	       */
+app.get('/notes', (req, res) => {
+        Note.find({})
+                .then(notes => res.send(notes))
+                .catch(error => console.log(error));
+});
 /*	Get All Notes from a user	*/
 app.get('/:userId/notes', (req, res) =>	{
-	Note.find({_userId: req.params.userId})
+	Note.find({ '_userId': req.params.userId})
 		.then(notes => res.send(notes))
 		.catch(error => console.log(error));
 });
 /*      Get a Note by Id        */
 app.get('/:userId/:noteId', (req, res) => {
-        Note.find({_id: req.params.noteId })
+        Note.find({ '_id': req.params.noteId })
         	.then(note => res.send(note))
         	.catch(error => console.log(error));
 });
 /*	Post a Note	*/
 app.post('/:userId/notes', (req, res) => {
-	new Note({ 'title': req.body.title, '_userId': req.params.userId })
+	new Note({ 'title': req.body.title, '_userId': req.params.userId , 'contents': req.body.contents})
 		.save()
 		.then(note => res.send(note))
 		.catch(error => console.log(error));
@@ -115,7 +149,7 @@ app.patch('/:userId/:noteId', (req, res) => {
 });
 /*      Delete a Note   */
 app.delete('/:userId/:noteId', (req, res) => {
-        Note.findByIdAndDelete(req.params.noteId)
+        Note.findByIdAndDelete({ '_id': req.params.noteId })
                 .then(note => res.send(note))
                 .catch(error => console.log(error));
 });
@@ -125,7 +159,4 @@ app.get('/',(reg, res)=>{
 	res.send('<head><title>NotePadApp</title></head><b>Development In Progress...</b><br><br><a href="https://hypombee.com">Back to Hypombee</a>');
 });
 
-app.listen(port,()=>{
-	console.log('Server started at port:'+port);
-});
-
+httpsServer.listen(port, () => console.log("Server is Connected on port "+port));

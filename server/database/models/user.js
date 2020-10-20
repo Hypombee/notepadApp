@@ -5,14 +5,14 @@ const UserSchema = new mongoose.Schema({
 	username: {
                 type: String,
                 trim: true,
-                minimumLength: 3,
+                minLength: 3,
 		required: true,
 		dropDups: true
 	},
 	password: {
 		type: String,
 		trime: true,
-		minimumLength: 8,
+		minLength: 8,
 		required: true,
 		default: "password"
 	},
@@ -20,6 +20,11 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		required: true,
 		default: false
+	},
+	isActive: {
+		type: Boolean,
+		required: true,
+		default: true
 	}
 });
 
