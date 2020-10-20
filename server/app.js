@@ -12,7 +12,7 @@ const port = 9092;
 
 //testing Server
 app.get('/',(reg, res)=>{
-	res.send('Notepad In Development..');
+	res.send('<head><title>NotePadApp</title></head><b>Development In Progress..</b><br><br><a href="https://hypombee.com">Back to Hypombee</a>');
 });
 
 app.listen(port,()=>{
