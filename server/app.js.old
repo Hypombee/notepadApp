@@ -21,7 +21,7 @@ const port = 9092;
 	Import mongodb models
 */
 const User = require('./database/models/user');
-//const List = require('./database/models/user');
+const List = require('./database/models/user');
 const Note = require('./database/models/note');
 
 /*
@@ -56,41 +56,14 @@ app.use(express.json());
 /*
 	User API
 */
-/*     Get a User by Id        */
-app.get('/:userId', (req, res) => {
-        User.find({_id: req.params.userId })
-                .then(user => res.send(user))
-                .catch(error => console.log(error));
-});
-/*      Create a User     */
-app.post('/newuser', (req, res) => {
-        new User({ 'username': req.body.username, 'password': req.body.password })
-                .save()
-                .then(user => res.send(user))
-                .catch(error => console.log(error));
-});
-/*      Update a User   */
-app.patch('/:userId', (req, res) => {
-        User.findByIdAndUpdate({'_id':req.params.userId}, {$set: req.body})
-                .then(user => res.send(user))
-                .catch(error => console.log(error));
-});
-/*      Delete a User   */
-app.delete('/:userId', (req, res) => {
-        User.findByIdAndDelete(req.params.userId)
-                .then(user => res.send(user))
-                .catch(error => console.log(error));
-	/*
-		Need Delete all user notes
-	*/
-});
+
 
 /*
 	NOTES API
-
-/*	Get All Notes from a user	*/
+*/
+/*	Get All Notes from a list	*/
 app.get('/:userId/notes', (req, res) =>	{
-	Note.find({_userId: req.params.userId})
+	Note.find({_userId: req.body._userId})
 		.then(notes => res.send(notes))
 		.catch(error => console.log(error));
 });
@@ -102,7 +75,7 @@ app.get('/:userId/:noteId', (req, res) => {
 });
 /*	Post a Note	*/
 app.post('/:userId/notes', (req, res) => {
-	new Note({ 'title': req.body.title, '_userId': req.params.userId })
+	new Note({ 'title': req.body.title, '_listId': req.body._userId })
 		.save()
 		.then(note => res.send(note))
 		.catch(error => console.log(error));

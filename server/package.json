@@ -2,11 +2,11 @@
   "name": "notepadapp",
   "version": "1.0.0",
   "description": "notepadApp beta 1.0.0",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Felipe Guerra",
+  "author": "Hypombee",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
