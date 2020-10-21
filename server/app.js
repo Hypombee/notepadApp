@@ -11,7 +11,6 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
-
 /*
         SSL cert
         Give node access to folder

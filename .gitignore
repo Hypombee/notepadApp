@@ -1,4 +1,3 @@
 node_modules
 server/nohup.out
-package-lock.json
-package.json
+
